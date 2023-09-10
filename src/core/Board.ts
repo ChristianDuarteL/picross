@@ -1,4 +1,3 @@
-
 type PictureMatrix = number[][];
 
 interface IBoard{
@@ -7,6 +6,8 @@ interface IBoard{
     picture: PictureMatrix;
     getColumn: (col: number) => number[];
     getRow: (col: number) => number[];
+    getColumnLabels: (col: number) => number[];
+    getRowLabels: (col: number) => number[];
 }
 
 class Board implements IBoard{
@@ -21,6 +22,34 @@ class Board implements IBoard{
             throw Error('Width and Height lengths mismatch with stream\'s length')
         }
         this.picture = Array(width).fill(null).map(_ => stream.splice(0, this.height));
+    }
+
+    getLabels: (stream: number[]) => number[] = (stream) => {
+        const labels = [];
+        let last_elem = 0;
+        let count = 0;
+        for (let i = 0; i < stream.length; i++) {
+            const element = stream[i];
+            if(element != last_elem){
+                if(count){
+                    labels.push(count);
+                }
+                count = element ? 1 : 0;
+                continue;
+            }
+            if(element != 0){
+                count++;
+            }
+        }
+        return labels;
+    }
+
+    getColumnLabels: (col: number) => number[] = (col) => {
+        return this.getLabels(this.getColumn(col));
+    };
+
+    getRowLabels: (col: number) => number[] = (row) => {
+        return this.getLabels(this.getRow(row));
     }
 
     getColumn: (col: number) => number[] = (col) => {

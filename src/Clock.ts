@@ -1,4 +1,4 @@
-class Clock {
+export class Clock {
     lastTime = 0;
     deltaTime = 0;
     

@@ -1,30 +1,37 @@
-class Entity {
+import { Clock } from "./Clock";
+import { getOrThrow } from "./utils";
+
+export type point = [number, number];
+export type dimension = [number, number];
+
+export class Entity {
     zIndex: number;
 
     constructor(zIndex = 0) {
         this.zIndex = zIndex;
     }
     
-    init(game: Game) { }
-    update(game: Game) { }
-    lateUpdate(game: Game) { }
-    draw(ctx: CanvasRenderingContext2D, size: [number, number], game: Game) { }
-    keydown(key: string, event: KeyboardEvent, game: Game) { }
-    mousedown(x: number, y: number, event: MouseEvent, game: Game) { }
-    mouseup(x: number, y: number, event: MouseEvent, game: Game) { }
-    mousemove(x: number, y: number, event: MouseEvent, game: Game) { }
+    init(_game: Engine) { }
+    update(_game: Engine) { }
+    lateUpdate(_game: Engine) { }
+    draw(_ctx: CanvasRenderingContext2D, _size: dimension, _game: Engine) { }
+    keydown(_key: string, _event: KeyboardEvent, _game: Engine) { }
+    mousedown(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
+    mouseup(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
+    mousemove(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
+    resize(_width: number, _height: number, _game: Engine) { }
 }
 
-class Game {
+export class Engine {
     entities: Entity[];
     private entities_map: Map<string, Entity[]>;
     private clock: Clock;
     private canvas: HTMLCanvasElement;
     private canvas_ctx: CanvasRenderingContext2D;
-    canvas_size: [number, number];
+    canvas_size: dimension;
     context: any;
 
-    constructor(canvas: HTMLCanvasElement, context: any){
+    constructor(canvas: HTMLCanvasElement, context: any = {}){
         this.entities = [];
         this.entities_map = new Map();
         this.clock = new Clock(performance.now());
@@ -67,15 +74,15 @@ class Game {
         this.entities = this.entities.filter(f);
     }
     
-    removeEntitiesOfType(class_name){
+    removeEntitiesOfType(class_name: string){
         this.entities = this.entities.filter(e => e.constructor.name == class_name);
         this.entities_map.delete(class_name);
     }
     
-    doLoop(time: number){
+    doLoop(time?: number){
         time && this.clock.tick(time);
         this.update();
-        this.draw(this.canvas_ctx, this.canvas_size, this);
+        this.redraw();
         requestAnimationFrame(this.doLoop.bind(this));
     }
     
@@ -84,11 +91,16 @@ class Game {
         this.entities.forEach(e => e.lateUpdate(this));
     }
     
-    draw(ctx: CanvasRenderingContext2D, size: [number, number], game: Game) {
-        ctx.clearRect(0, 0, ...this.canvas_size);
-        ctx.fillStyle = '#fff';
-        ctx.strokeStyle = '#000';
-        this.entities.forEach(e => e.draw(ctx, this.canvas_size, this));
+    draw(ctx: CanvasRenderingContext2D, size: dimension, game: Engine) {
+        ctx.clearRect(0, 0, ...size);
+        ctx.fillStyle = '#000';
+        ctx.strokeStyle = '#fff';
+        ctx.strokeRect(0, 0, ...size);
+        this.entities.forEach(e => e.draw(ctx, size, game));
+    }
+
+    redraw() {
+        this.draw(this.canvas_ctx, this.canvas_size, this);
     }
     
     keydown(event: KeyboardEvent) {
@@ -96,17 +108,17 @@ class Game {
     }
 
     mousedown(event: MouseEvent) {
-        const pos: [number, number] = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
         this.entities.forEach(e => e.mousedown(...pos, event, this))
     }
 
     mouseup(event: MouseEvent) {
-        const pos: [number, number] = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
         this.entities.forEach(e => e.mouseup(...pos, event, this))
     }
 
     mousemove(event: MouseEvent) {
-        const pos: [number, number] = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
         this.entities.forEach(e => e.mousemove(...pos, event, this))
     }
     
@@ -114,7 +126,15 @@ class Game {
         return this.clock.deltaTime;
     }
     
-    setContext (v) {
-        this.context = { ...this.context, ...v};
+    setContext (value: any) {
+        this.context = { ...this.context, ...value};
+    }
+
+    setSize(width: number, height: number) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+        this.canvas_size = [width, height];
+        this.entities.forEach(e => e.resize(width, height, this))
+        this.redraw();
     }
 }

@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "test": "vitest"
   },
   "author": "Christian Duarte",
   "license": "ISC",
   "devDependencies": {
     "typescript": "^5.2.2",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "vitest": "^0.34.4"
   }
 }

@@ -95,7 +95,6 @@ export class Engine {
         ctx.clearRect(0, 0, ...size);
         ctx.fillStyle = '#000';
         ctx.strokeStyle = '#fff';
-        ctx.strokeRect(0, 0, ...size);
         this.entities.forEach(e => e.draw(ctx, size, game));
     }
 

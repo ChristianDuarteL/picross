@@ -22,15 +22,10 @@ export class Grid extends Entity {
 
     draw(ctx: CanvasRenderingContext2D, size: dimension, game: Engine): void {
         if(!this.rect_size || !this.board_size || !this.rect_pos || !this.board_pos) return;
-        ctx.strokeRect(...this.rect_pos, ...this.rect_size);
-        
-        ctx.fillStyle = "#ff6666";
-        ctx.fillRect(...this.board_pos, ...this.board_size);
-
         const cell_size: dimension = mapArrays(this.board_size, this.grid_size, (a, b) => a / b) as dimension;
 
         for (let xi = 0, x = this.board_pos[0]; xi < this.grid_size[0]; xi++, x += cell_size[0]) {
-            for (let yi = 0, y = this.board_pos[1]; yi < this.grid_size[0]; yi++, y += cell_size[1]) {
+            for (let yi = 0, y = this.board_pos[1]; yi < this.grid_size[1]; yi++, y += cell_size[1]) {
                 this.draw_element_fn && this.draw_element_fn(ctx, [Math.floor(xi), Math.floor(yi)], [Math.floor(x), Math.floor(y)], cell_size, game);
             }
         }

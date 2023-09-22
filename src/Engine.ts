@@ -46,9 +46,6 @@ export class Engine<ContextType = any> {
     }
     
     addEntity(entity: Entity){
-        if(!(entity instanceof Entity)) {
-            throw Error('That element is not an Entity');
-        }
         this.entities.push(entity);
         this.entities = this.entities.sort((a, b) => a.zIndex - b.zIndex);
         if(!this.entities_map.has(entity.constructor.name)){

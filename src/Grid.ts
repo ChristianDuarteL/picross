@@ -18,6 +18,7 @@ export class Grid extends Entity {
     draw_element_fn?: (ctx: CanvasRenderingContext2D, indices: point, pos: point, size: dimension, game: Engine) => void;
     selected_change_fn?: (indices: point, grid: Grid, game: Engine, event: MouseEvent, last_index: point | null) => void;
     click_fn?: (index: point, grid: Grid, game: Engine, event: MouseEvent) => void;
+    touch_fn?: (index: point, grid: Grid, game: Engine, touch: Touch, event: TouchEvent) => void;
 
     constructor(grid_size: point, size_ratio: point){
         super();
@@ -74,8 +75,13 @@ export class Grid extends Entity {
         })
     }
 
+    override touchmove(x: number, y: number, touch: Touch, game: Engine<GridContext & any>, event: TouchEvent): void {
+        const point = this.get_selected_cell_with_xy(x,y)
+        if(!point) return;
+        this.touch_fn && this.touch_fn(point, this, game, touch, event);
+    }
+
     mousedown(x: number, y: number, event: MouseEvent, game: Engine<GridContext>): void {
-        console.log("asd")
         const point = this.get_selected_cell_with_xy(x,y)
         if(!point) return;
         this.click_fn && this.click_fn(point, this, game, event);

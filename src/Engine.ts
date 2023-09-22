@@ -19,6 +19,7 @@ export class Entity {
     mousedown(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
     mouseup(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
     mousemove(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
+    touchmove(_x: number, _y: number, _touch: Touch, _game: Engine, _touch_evnt: TouchEvent) { }
     click(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
     resize(_width: number, _height: number, _game: Engine) { }
 }
@@ -61,7 +62,7 @@ export class Engine<ContextType = any> {
         document.addEventListener('mousedown', this.mousedown.bind(this));
         document.addEventListener('mouseup', this.mouseup.bind(this));
         document.addEventListener('mousemove', this.mousemove.bind(this));
-        document.addEventListener('click', this.click.bind(this));
+        document.addEventListener('touchmove', this.touchmove.bind(this));
         this.addEntity(new FPSCounter())
     }
     
@@ -124,31 +125,52 @@ export class Engine<ContextType = any> {
     }
 
     click(event: MouseEvent) {
-        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = this.getXY(event);
         this.entities.forEach(e => e.click(...pos, event, this))
     }
 
     mousedown(event: MouseEvent) {
-        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = this.getXY(event);
         this.entities.forEach(e => e.mousedown(...pos, event, this))
     }
 
     mouseup(event: MouseEvent) {
-        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = this.getXY(event);
         this.entities.forEach(e => e.mouseup(...pos, event, this))
     }
 
     mousemove(event: MouseEvent) {
-        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        const pos: point = this.getXY(event);
         this.entities.forEach(e => e.mousemove(...pos, event, this))
     }
     
+    touchmove(event: TouchEvent) {
+        for (let i = 0; i < event.changedTouches.length; i++) {
+            const element = event.changedTouches[i];
+            const pos: point = this.getXY(element);
+            this.entities.forEach(e => e.touchmove(...pos, element, this, event))
+        }
+    }
+
     get deltaTime() {
         return this.clock.deltaTime;
     }
     
     setContext (value: any) {
         this.context = { ...this.context, ...value};
+    }
+
+    getXY(value: {clientX: number, clientY: number} | {x: number, y: number} | point): point{
+        let x = 0;
+        let y = 0;
+        if(Array.isArray(value)){
+            x = value[0];
+            y = value[1];
+        }else{
+            x = 'clientX' in value ? value.clientX : value.x;
+            y = 'clientY' in value ? value.clientY : value.y;
+        }
+        return [(x - this.canvas.offsetLeft) * window.devicePixelRatio, (y - this.canvas.offsetTop) * window.devicePixelRatio];
     }
 
     setSize(width: number, height: number) {

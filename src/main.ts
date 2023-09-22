@@ -44,7 +44,7 @@ window.addEventListener('load', () => {
     const max_col_labels_count = Math.max(...labels.cols.map(e => e.length))
     
     const grid = new Grid([20 + max_row_labels_count, 20 + max_col_labels_count], [.9, .9]);
-    
+
     grid.selected_change_fn = (i, grid, game: Engine<GameContext>, event) => {
         game.canvas_styles.cursor = 'default';
         if(i[0] >= max_row_labels_count && i[1] >= max_col_labels_count && i[0] < grid.grid_size[0] && i[1] < grid.grid_size[1]){
@@ -55,7 +55,11 @@ window.addEventListener('load', () => {
         }
     }
 
-    grid.click_fn = (i, grid, game: Engine<GameContext>, event) => {
+    grid.click_fn = (i, _, game: Engine<GameContext>) => {
+        game.context.current_board.set(i[0] - max_col_labels_count - 1, i[1] - max_col_labels_count, 1);
+    }
+
+    grid.touch_fn = (i, _, game: Engine<GameContext>) => {
         game.context.current_board.set(i[0] - max_col_labels_count - 1, i[1] - max_col_labels_count, 1);
     }
 
@@ -99,9 +103,12 @@ window.addEventListener('load', () => {
     engine.addEntity(grid);
     engine.doLoop();
     const resizeObserver = new ResizeObserver((e) => {
-        engine.setSize(canvas.offsetWidth, canvas.offsetHeight) 
+        engine.setSize(canvas.offsetWidth*window.devicePixelRatio, canvas.offsetHeight*window.devicePixelRatio) 
     });
-    canvas.style.width = "90vw";
+    canvas.style.width = "95vw";
     canvas.style.height = "90vh";
     resizeObserver.observe(canvas);
 })
+window.onbeforeunload = function() {
+    return "you can not refresh the page";
+}

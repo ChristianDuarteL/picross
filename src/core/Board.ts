@@ -21,13 +21,20 @@ export class Board implements IBoard{
     height: number;
     picture: PictureMatrix;
 
-    constructor(stream: number[], width: number, height: number){
-        this.width = width;
-        this.height = height;
-        if(stream.length < width * height){
-            throw Error('Width and Height lengths mismatch with stream\'s length')
+    constructor(width: number, height: number);
+    constructor(stream: number[], width: number, height: number);
+
+    constructor(...args: [ number, number ] | [ number[], number, number ]){
+        this.width = args.length == 2 ? args[0] : args[1];
+        this.height = args.length == 2 ? args[1] : args[2];
+        if(args.length == 2){
+            this.picture = Array(this.height).fill(null).map(_ => Array(this.width).fill(0))
+        }else{
+            if(args[0].length < this.width * this.height){
+                throw Error('Width and Height lengths mismatch with stream\'s length')
+            }
+            this.picture = Array(this.height).fill(null).map(_ => args[0].splice(0, this.width));
         }
-        this.picture = Array(height).fill(null).map(_ => stream.splice(0, this.width));
     }
 
     getLabels: (stream: number[]) => number[] = (stream) => {

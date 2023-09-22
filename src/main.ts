@@ -7,8 +7,13 @@ window.addEventListener('load', () => {
     const canvas = document.getElementById('game_canvas');
     if(!(canvas instanceof HTMLCanvasElement))
         return;
-    const engine = new Engine(canvas);
-    engine.setContext({
+    
+    interface GameContext {
+        board: Board,
+        current_board: Board,
+    }
+
+    const engine = new Engine(canvas, {
         board: new Board([
             0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,0,0,0,0,0,
             0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,
@@ -30,7 +35,8 @@ window.addEventListener('load', () => {
             1,0,0,1,1,0,0,1,0,1,1,0,0,1,0,1,0,0,1,0,
             0,1,1,0,1,1,1,1,0,1,1,1,0,1,0,1,0,1,1,0,
             0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,
-        ], 20, 20)
+        ], 20, 20),
+        current_board: new Board(20, 20)
     })
     
     const labels = engine.context.board.getAllLabels() as BoardLabels;
@@ -38,10 +44,14 @@ window.addEventListener('load', () => {
     const max_col_labels_count = Math.max(...labels.cols.map(e => e.length))
     
     const grid = new Grid([20 + max_row_labels_count, 20 + max_col_labels_count], [.9, .9]);
-    grid.draw_element_fn = (ctx, i, pos, size, game) => {
+    grid.draw_element_fn = (ctx, i, pos, size, game: Engine<GameContext>) => {
         ctx.strokeStyle = "#666";
         if(i[0] >= max_row_labels_count && i[1] >= max_col_labels_count){
             draw_borders(ctx, pos, size, 1);
+            if(game.context.current_board.get(i[0] - max_col_labels_count - 1, i[1] - max_col_labels_count )){
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(...pos, ...size);
+            }
             return;
         }
         

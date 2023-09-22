@@ -22,16 +22,16 @@ export class Entity {
     resize(_width: number, _height: number, _game: Engine) { }
 }
 
-export class Engine {
+export class Engine<ContextType = any> {
     entities: Entity[];
     private entities_map: Map<string, Entity[]>;
     private clock: Clock;
     private canvas: HTMLCanvasElement;
     private canvas_ctx: CanvasRenderingContext2D;
     canvas_size: dimension;
-    context: any;
+    context: ContextType;
 
-    constructor(canvas: HTMLCanvasElement, context: any = {}){
+    constructor(canvas: HTMLCanvasElement, context: ContextType){
         this.entities = [];
         this.entities_map = new Map();
         this.clock = new Clock(performance.now());

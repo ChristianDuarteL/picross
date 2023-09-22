@@ -19,7 +19,21 @@ export class Entity {
     mousedown(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
     mouseup(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
     mousemove(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
+    click(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
     resize(_width: number, _height: number, _game: Engine) { }
+}
+
+export class FPSCounter extends Entity{
+    draw(ctx: CanvasRenderingContext2D, _size: dimension, _game: Engine<any>): void {
+        ctx.fillStyle = "#fff"
+        ctx.strokeStyle = "#000";
+        
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.font = `20px sans-serif`;
+
+        ctx.fillText((1/_game.deltaTime).toFixed(0), 0, 0);
+    }
 }
 
 export class Engine<ContextType = any> {
@@ -30,6 +44,10 @@ export class Engine<ContextType = any> {
     private canvas_ctx: CanvasRenderingContext2D;
     canvas_size: dimension;
     context: ContextType;
+
+    get canvas_styles() : CSSStyleDeclaration{
+        return this.canvas.style;
+    }
 
     constructor(canvas: HTMLCanvasElement, context: ContextType){
         this.entities = [];
@@ -43,6 +61,8 @@ export class Engine<ContextType = any> {
         document.addEventListener('mousedown', this.mousedown.bind(this));
         document.addEventListener('mouseup', this.mouseup.bind(this));
         document.addEventListener('mousemove', this.mousemove.bind(this));
+        document.addEventListener('click', this.click.bind(this));
+        this.addEntity(new FPSCounter())
     }
     
     addEntity(entity: Entity){
@@ -101,6 +121,11 @@ export class Engine<ContextType = any> {
     
     keydown(event: KeyboardEvent) {
         this.entities.forEach(e => e.keydown(event.key, event, this))
+    }
+
+    click(event: MouseEvent) {
+        const pos: point = [event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop];
+        this.entities.forEach(e => e.click(...pos, event, this))
     }
 
     mousedown(event: MouseEvent) {

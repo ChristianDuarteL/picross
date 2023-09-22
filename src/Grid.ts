@@ -1,6 +1,10 @@
 import { Engine, Entity, dimension, point } from "./Engine";
 import { mapArrays } from "./utils";
 
+export interface GridContext {
+    selected_tile?: point
+}
+
 export class Grid extends Entity {
     grid_size: point;
     private size_ratio: point;
@@ -12,6 +16,8 @@ export class Grid extends Entity {
 
 
     draw_element_fn?: (ctx: CanvasRenderingContext2D, indices: point, pos: point, size: dimension, game: Engine) => void;
+    selected_change_fn?: (indices: point, grid: Grid, game: Engine, event: MouseEvent, last_index: point | null) => void;
+    click_fn?: (index: point, grid: Grid, game: Engine, event: MouseEvent) => void;
 
     constructor(grid_size: point, size_ratio: point){
         super();
@@ -48,16 +54,30 @@ export class Grid extends Entity {
         }
     }
 
-    mousemove(x: number, y: number, _event: MouseEvent, game: Engine): void {
-        if(!this.board_pos || !this.board_size) return;
+    protected get_selected_cell_with_xy(x: number, y: number) : point | null {
+        if(!this.board_pos || !this.board_size) return null;
         const cell_size: dimension = mapArrays(this.board_size, this.grid_size, (a, b) => a / b) as dimension;
-        const relative_pos = [
+        return [
             Math.floor((x - this.board_pos[0]) / cell_size[0]),
             Math.floor((y - this.board_pos[1]) / cell_size[1]),
         ];
+    }
+
+    mousemove(x: number, y: number, event: MouseEvent, game: Engine<GridContext>): void {
+        const point = this.get_selected_cell_with_xy(x,y)
+        if(!point) return;
+        if(!game.context.selected_tile || game.context.selected_tile[0] != point[0] || game.context.selected_tile[1] != point[1]){
+            this.selected_change_fn && this.selected_change_fn(point, this, game, event, game.context.selected_tile ?? null, );
+        }
         game.setContext({
-            selected_tile: relative_pos,
+            selected_tile: point,
         })
     }
 
+    mousedown(x: number, y: number, event: MouseEvent, game: Engine<GridContext>): void {
+        console.log("asd")
+        const point = this.get_selected_cell_with_xy(x,y)
+        if(!point) return;
+        this.click_fn && this.click_fn(point, this, game, event);
+    }
 }

@@ -92,6 +92,10 @@ export class Board implements IBoard{
         return this.picture[row][col]
     }
 
+    set: (col: number, row: number, v: number) => void = (col, row, v: number) => {
+        this.picture[row][col] = v;
+    }
+
     compareTo: (value: PictureMatrix | IBoard) => boolean = (v) => {
         v = Array.isArray(v) ? v : v.picture;
         if(this.picture.length !== v.length) return false;

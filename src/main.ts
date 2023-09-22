@@ -13,7 +13,7 @@ window.addEventListener('load', () => {
         current_board: Board,
     }
 
-    const engine = new Engine(canvas, {
+    const engine = new Engine<GameContext>(canvas, {
         board: new Board([
             0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,0,0,0,0,0,
             0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,

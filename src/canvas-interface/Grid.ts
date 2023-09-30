@@ -6,25 +6,33 @@ export interface GridContext {
 }
 
 export class Grid extends Entity {
-    grid_size: point;
-    private size_ratio: point;
-    private aspect_ratio: number;
+    grid_size: point = [1, 1];
+    private size_ratio: point = [1, 1];
+    private aspect_ratio: number = 1;
     private rect_size?: dimension;
     private board_size?: dimension;
     private rect_pos?: point;
     private board_pos?: point;
 
 
-    draw_element_fn?: (ctx: CanvasRenderingContext2D, indices: point, pos: point, size: dimension, game: Engine) => void;
-    selected_change_fn?: (indices: point, grid: Grid, game: Engine, event: MouseEvent, last_index: point | null) => void;
-    click_fn?: (index: point, grid: Grid, game: Engine, event: MouseEvent) => void;
-    touch_fn?: (index: point, grid: Grid, game: Engine, touch: Touch, event: TouchEvent) => void;
+    draw_element_fn?: (ctx: CanvasRenderingContext2D, indices: point, pos: point, size: dimension, game: Engine) => void = () => {};
+    selected_change_fn: (indices: point, game: Engine, event: MouseEvent, last_index: point | null) => void = () => { };
+    click_fn: (index: point, game: Engine, event: MouseEvent) => void  = () => { };
+    touch_fn: (index: point, game: Engine, touch: Touch, event: TouchEvent) => void = () => {};
 
     constructor(grid_size: point, size_ratio: point){
         super();
+        this.setSize(grid_size);
+        this.setSizeRatio(size_ratio);
+    }
+
+    setSize(grid_size: point) {
         this.grid_size = grid_size;
-        this.size_ratio = size_ratio;
         this.aspect_ratio = grid_size[0] / grid_size[1];
+    }
+
+    setSizeRatio(size_ratio: point) {
+        this.size_ratio = size_ratio;
     }
 
     draw(ctx: CanvasRenderingContext2D, size: dimension, game: Engine): void {
@@ -68,7 +76,7 @@ export class Grid extends Entity {
         const point = this.get_selected_cell_with_xy(x,y)
         if(!point) return;
         if(!game.context.selected_tile || game.context.selected_tile[0] != point[0] || game.context.selected_tile[1] != point[1]){
-            this.selected_change_fn && this.selected_change_fn(point, this, game, event, game.context.selected_tile ?? null, );
+            this.selected_change_fn && this.selected_change_fn(point, game, event, game.context.selected_tile ?? null, );
         }
         game.setContext({
             selected_tile: point,
@@ -78,12 +86,12 @@ export class Grid extends Entity {
     override touchmove(x: number, y: number, touch: Touch, game: Engine<GridContext & any>, event: TouchEvent): void {
         const point = this.get_selected_cell_with_xy(x,y)
         if(!point) return;
-        this.touch_fn && this.touch_fn(point, this, game, touch, event);
+        this.touch_fn && this.touch_fn(point, game, touch, event);
     }
 
     mousedown(x: number, y: number, event: MouseEvent, game: Engine<GridContext>): void {
         const point = this.get_selected_cell_with_xy(x,y)
         if(!point) return;
-        this.click_fn && this.click_fn(point, this, game, event);
+        this.click_fn && this.click_fn(point, game, event);
     }
 }

@@ -1,3 +1,5 @@
+import { point } from "../canvas-interface/Engine";
+
 export type PictureMatrix = number[][];
 
 export interface IBoard{
@@ -106,5 +108,9 @@ export class Board implements IBoard{
             }
         }
         return true;
+    }
+
+    get size () {
+        return [ this.width, this.height ] as point;
     }
 }

@@ -131,12 +131,12 @@ export class Engine<ContextType = any> {
 
     mousedown(event: MouseEvent) {
         const pos: point = this.getXY(event);
-        this.entities.forEach(e => e.mousedown(...pos, event, this))
+        this.entities.forEach(e => e.mousedown(...pos, event, this));
     }
 
     mouseup(event: MouseEvent) {
         const pos: point = this.getXY(event);
-        this.entities.forEach(e => e.mouseup(...pos, event, this))
+        this.entities.forEach(e => e.mouseup(...pos, event, this));
     }
 
     mousemove(event: MouseEvent) {

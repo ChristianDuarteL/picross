@@ -1,7 +1,7 @@
-import { Grid, GridContext } from "./Grid";
-import { Engine, dimension } from "./Engine"
+import { Grid, GridContext } from "./canvas-interface/Grid";
+import { Engine, dimension } from "./canvas-interface/Engine"
 import { Board, BoardLabels } from "./core/Board";
-import { draw_borders } from "./utils";
+import { draw_borders } from "./canvas-interface/utils";
 
 window.addEventListener('load', () => {
     const canvas = document.getElementById('game_canvas');

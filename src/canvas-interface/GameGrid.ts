@@ -10,16 +10,16 @@ export class GameGrid extends Grid {
     max_row_labels_count?: number;
     max_col_labels_count?: number;
     
-    constructor(){
-        super([1, 1], [1, 1])
+    constructor(size_ratio: point = [.8, .8]){
+        super([1, 1], size_ratio)
     }
 
     init(game: Engine<GameContext>): void {
-        this.setSize(game.context.board.size);
-        this.setSizeRatio([1, 1]);
         this.labels = game.context.board.getAllLabels();
         this.max_row_labels_count = Math.max(...this.labels.rows.map(e => e.length))
         this.max_col_labels_count = Math.max(...this.labels.cols.map(e => e.length))
+        const labels_count = [ this.max_row_labels_count, this.max_col_labels_count ];
+        this.setSize(game.context.board.size.map((e, i) => e + labels_count[i]) as point);
     }
 
     selected_change_fn = (i: point, game: Engine<GameContext>, event: MouseEvent) => {
@@ -28,13 +28,21 @@ export class GameGrid extends Grid {
         if(i[0] >= this.max_row_labels_count && i[1] >= this.max_col_labels_count && i[0] < this.grid_size[0] && i[1] < this.grid_size[1]){
             game.canvas_styles.cursor = 'pointer';
         }
+        if(event.buttons & 2){
+            game.context.current_board.set(i[0] - this.max_col_labels_count - 1, i[1] - this.max_col_labels_count, 0);
+            return;
+        }
         if(event.buttons & 1){
             game.context.current_board.set(i[0] - this.max_col_labels_count - 1, i[1] - this.max_col_labels_count, 1);
         }
     }
 
-    click_fn = (i: point, game: Engine<GameContext>) => {
+    click_fn = (i: point, game: Engine<GameContext>, event: MouseEvent) => {
         if(!this.max_col_labels_count) return;
+        if(event.buttons & 2){
+            game.context.current_board.set(i[0] - this.max_col_labels_count - 1, i[1] - this.max_col_labels_count, 0);
+            return;
+        }
         game.context.current_board.set(i[0] - this.max_col_labels_count - 1, i[1] - this.max_col_labels_count, 1);
     }
 
@@ -63,10 +71,10 @@ export class GameGrid extends Grid {
         if(i[0] < this.max_row_labels_count && i[1] < this.max_col_labels_count) return;
 
         const is_row = i[0] < this.max_row_labels_count;
-        let labels_arr = is_row ? this.labels.rows[i[1] - this.max_col_labels_count] : this.labels.cols[i[0] - this.max_row_labels_count];
+        const labels_arr = is_row ? this.labels.rows[i[1] - this.max_col_labels_count] : this.labels.cols[i[0] - this.max_row_labels_count];
         
         if(!labels_arr) return;
-        let label = is_row ? labels_arr[i[0] - (this.max_row_labels_count - labels_arr.length)] : labels_arr[i[1] - (this.max_col_labels_count - labels_arr.length)];
+        const label = is_row ? labels_arr[i[0] - (this.max_row_labels_count - labels_arr.length)] : labels_arr[i[1] - (this.max_col_labels_count - labels_arr.length)];
         
         if(is_row) {
             draw_borders(ctx, pos, size, [1, 0]);

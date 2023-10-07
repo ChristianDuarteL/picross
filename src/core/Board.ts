@@ -30,12 +30,12 @@ export class Board implements IBoard{
         this.width = args.length == 2 ? args[0] : args[1];
         this.height = args.length == 2 ? args[1] : args[2];
         if(args.length == 2){
-            this.picture = Array(this.height).fill(null).map(_ => Array(this.width).fill(0))
+            this.picture = Array(this.height).fill(null).map(() => Array(this.width).fill(0))
         }else{
             if(args[0].length < this.width * this.height){
                 throw Error('Width and Height lengths mismatch with stream\'s length')
             }
-            this.picture = Array(this.height).fill(null).map(_ => args[0].splice(0, this.width));
+            this.picture = Array(this.height).fill(null).map(() => args[0].splice(0, this.width));
         }
     }
 

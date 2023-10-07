@@ -46,7 +46,7 @@ export class Grid extends Entity {
         }
     }
 
-    resize(_width: number, _height: number, _game: Engine): void {
+    resize(_width: number, _height: number): void {
         const size = [_width, _height];
         this.rect_size = mapArrays(this.grid_size, mapArrays(size, this.size_ratio, (a,b) => a * b), (a, b) => b - b % a) as dimension;
         this.board_size = [...this.rect_size] as dimension;
@@ -83,7 +83,7 @@ export class Grid extends Entity {
         })
     }
 
-    override touchmove(x: number, y: number, touch: Touch, game: Engine<GridContext & any>, event: TouchEvent): void {
+    override touchmove(x: number, y: number, touch: Touch, game: Engine<GridContext>, event: TouchEvent): void {
         const point = this.get_selected_cell_with_xy(x,y)
         if(!point) return;
         this.touch_fn && this.touch_fn(point, game, touch, event);

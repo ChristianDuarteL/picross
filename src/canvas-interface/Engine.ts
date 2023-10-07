@@ -6,26 +6,29 @@ export type dimension = [number, number];
 
 export class Entity {
     zIndex: number;
-
+    
     constructor(zIndex = 0) {
         this.zIndex = zIndex;
     }
     
-    init(_game: Engine) { }
-    update(_game: Engine) { }
-    lateUpdate(_game: Engine) { }
-    draw(_ctx: CanvasRenderingContext2D, _size: dimension, _game: Engine) { }
-    keydown(_key: string, _event: KeyboardEvent, _game: Engine) { }
-    mousedown(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
-    mouseup(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
-    mousemove(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
-    touchmove(_x: number, _y: number, _touch: Touch, _game: Engine, _touch_evnt: TouchEvent) { }
-    click(_x: number, _y: number, _event: MouseEvent, _game: Engine) { }
-    resize(_width: number, _height: number, _game: Engine) { }
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    init(_game: Engine) {}
+    dispose(_game: Engine) {}
+    update(_game: Engine) {}
+    lateUpdate(_game: Engine) {}
+    draw(_ctx: CanvasRenderingContext2D, _size: dimension, _game: Engine) {}
+    keydown(_key: string, _event: KeyboardEvent, _game: Engine) {}
+    mousedown(_x: number, _y: number, _event: MouseEvent, _game: Engine) {}
+    mouseup(_x: number, _y: number, _event: MouseEvent, _game: Engine) {}
+    mousemove(_x: number, _y: number, _event: MouseEvent, _game: Engine) {}
+    touchmove(_x: number, _y: number, _touch: Touch, _game: Engine, _touch_evnt: TouchEvent) {}
+    click(_x: number, _y: number, _event: MouseEvent, _game: Engine) {}
+    resize(_width: number, _height: number, _game: Engine) {}
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 }
 
 export class FPSCounter extends Entity{
-    draw(ctx: CanvasRenderingContext2D, _size: dimension, _game: Engine<any>): void {
+    draw(ctx: CanvasRenderingContext2D, _size: dimension, _game: Engine): void {
         ctx.fillStyle = "#fff"
         ctx.strokeStyle = "#000";
         
@@ -37,6 +40,7 @@ export class FPSCounter extends Entity{
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Engine<ContextType = any> {
     entities: Entity[];
     private entities_map: Map<string, Entity[]>;
@@ -89,11 +93,15 @@ export class Engine<ContextType = any> {
         const entities_class = entity.constructor.name;
         const n = this.entities_map.get(entities_class);
         n && this.entities_map.set(entities_class, n.filter(f));
+        const entities = this.entities;
         this.entities = this.entities.filter(f);
+        entities.length !== this.entities.length && entity.dispose(this);
     }
     
     removeEntitiesOfType(class_name: string){
-        this.entities = this.entities.filter(e => e.constructor.name == class_name);
+        const entities_removed = this.entities.filter(e => e.constructor.name === class_name);
+        entities_removed.forEach(e => e.dispose(this));
+        this.entities = this.entities.filter(e => e.constructor.name !== class_name);
         this.entities_map.delete(class_name);
     }
     
@@ -155,7 +163,7 @@ export class Engine<ContextType = any> {
     get deltaTime() {
         return this.clock.deltaTime;
     }
-    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setContext (value: any) {
         this.context = { ...this.context, ...value};
     }

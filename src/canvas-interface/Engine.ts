@@ -41,7 +41,7 @@ export class FPSCounter extends Entity{
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class Engine<ContextType = any> {
+export class Engine<ContextType = any> extends EventTarget {
     entities: Entity[];
     private entities_map: Map<string, Entity[]>;
     private clock: Clock;
@@ -55,6 +55,7 @@ export class Engine<ContextType = any> {
     }
 
     constructor(canvas: HTMLCanvasElement, context: ContextType){
+        super();
         this.entities = [];
         this.entities_map = new Map();
         this.clock = new Clock(performance.now());
